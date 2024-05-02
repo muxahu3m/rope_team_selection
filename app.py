@@ -67,7 +67,7 @@ if uploaded_file:
             output = output + fr + '\n'
             # print(fr)
             for m in d[:20]:
-                r = f"Суммарный вес {m[1]} кг. Состав:{', '.join(m[2:])}"
+                r = f"Суммарный вес {m[1]} кг. Состав: {', '.join(m[2:])}"
                 output = output + r + '\n'
                 # print(r)
         else:
