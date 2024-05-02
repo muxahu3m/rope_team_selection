@@ -39,6 +39,13 @@ if uploaded_file:
     df = pd.read_excel(uploaded_file)
     # st.write("dogovor.docx", uploaded_file.name)
     weights2 = df.apply(lambda x: x['Участник']+'_|'+str(x['Вес']), axis=1)
+    st.sidebar.write('Обязательные участники:')
+    must = {}
+    for w in weights2:
+        must[w] = st.sidebar.checkbox(w.replace('_|', ' (')+')', key=w)
+    print(must)
+    must = [a[0] for a in must.items() if a[1]==True]
+    
     results = {}
     output = ""
     for j in [max_team,max_team-1,max_team-2]:
@@ -47,7 +54,7 @@ if uploaded_file:
         variants = list(combi)
         for v in variants:
             w = sum([float(a.split('_|')[1]) for a in v])
-            if w <= max_weight:
+            if w <= max_weight and set(must).issubset(v):
                 results[j].append([j,w]+(sorted([a.split('_|')[0] for a in v])))
         d = results[j]
         d.sort(key=lambda x: x[1])
@@ -55,16 +62,18 @@ if uploaded_file:
         if len(tp)>0:
             d = tp.to_records(index=False).tolist()
             fr = f"""Подобрано {len(d)} вариантов состава для команды из {j} человек и максимальном весе {max_weight} кг."""
+            if len(must)>0:
+                fr = fr + f"\n Обязательные участники: {', '.join([a[:a.find('_|')] for a in must])}"
             output = output + fr + '\n'
-            print(fr)
+            # print(fr)
             for m in d[:20]:
                 r = f"Суммарный вес {m[1]} кг. Состав:{', '.join(m[2:])}"
                 output = output + r + '\n'
-                print(r)
+                # print(r)
         else:
             fr = f"""Нет вариантов состава для команды из {j} человек и максимальном весе {max_weight} кг. :("""
             output = output + fr + '\n'
-            print(fr)
+            # print(fr)
 
 
     st.text_area('Результаты подборки: ', output, height=600)
